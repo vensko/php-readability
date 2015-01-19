@@ -46,6 +46,7 @@
 
 // This class allows us to do JavaScript like assignements to innerHTML
 require_once(dirname(__FILE__).'/JSLikeHTMLElement.php');
+libxml_use_internal_errors(true);
 
 // Alternative usage (for testing only!)
 // uncomment the lines below and call Readability.php in your browser 
@@ -679,6 +680,7 @@ class Readability
 				} else {
 					$topCandidate->innerHTML = $page->documentElement->innerHTML;
 					$page->documentElement->innerHTML = '';
+					$this->reinitBody();
 					$page->documentElement->appendChild($topCandidate);
 				}
 			} else {
@@ -696,7 +698,7 @@ class Readability
 		$articleContent        = $this->dom->createElement('div');
 		$articleContent->setAttribute('id', 'readability-content');
 		$siblingScoreThreshold = max(10, ((int)$topCandidate->getAttribute('readability')) * 0.2);
-		$siblingNodes          = $topCandidate->parentNode->childNodes;
+		$siblingNodes          = @$topCandidate->parentNode->childNodes;
 		if (!isset($siblingNodes)) {
 			$siblingNodes = new stdClass;
 			$siblingNodes->length = 0;
@@ -794,8 +796,7 @@ class Readability
 		{
 			// TODO: find out why element disappears sometimes, e.g. for this URL http://www.businessinsider.com/6-hedge-fund-etfs-for-average-investors-2011-7
 			// in the meantime, we check and create an empty element if it's not there.
-			if (!isset($this->body->childNodes)) $this->body = $this->dom->createElement('body');
-			$this->body->innerHTML = $this->bodyCache;
+			$this->reinitBody();
 			
 			if ($this->flagIsActive(self::FLAG_STRIP_UNLIKELYS)) {
 				$this->removeFlag(self::FLAG_STRIP_UNLIKELYS);
@@ -1059,8 +1060,8 @@ class Readability
 					} else if ( $input > floor($p/3) ) {
 						$this->dbg(' too many <input> elements');
 						$toRemove = true; 
-					} else if ($contentLength < 25 && ($embedCount === 0 && ($img === 0 || $img > 2))) {
-						$this->dbg(' content length less than 25 chars, 0 embeds and either 0 images or more than 2 images');
+					} else if ($contentLength < 10 && ($embedCount === 0 && ($img === 0 || $img > 2))) {
+						$this->dbg(' content length less than 10 chars, 0 embeds and either 0 images or more than 2 images');
 						$toRemove = true;
 					} else if($weight < 25 && $linkDensity > 0.2) {
 						$this->dbg(' weight smaller than 25 and link density above 0.2');
@@ -1134,4 +1135,18 @@ class Readability
 	public function removeFlag($flag) {
 		$this->flags = $this->flags & ~$flag;
 	}
+	
+	/**
+	 * Will recreate previously deleted body property
+	 *
+	 * @return void
+	 */
+	protected function reinitBody() {
+		if (!isset($this->body->childNodes)) {
+			$this->body = $this->dom->createElement('body');
+			$this->body->innerHTML = $this->bodyCache;
+		}
+	}
+		
 }
+?>
