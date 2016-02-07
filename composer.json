@@ -1,11 +1,17 @@
 {
-	"name": "wallabag/php-readability",
+	"name": "vensko/php-readability",
 	"type": "library",
 	"description": "Automatic article extraction from HTML",
 	"keywords": ["article extraction","content extraction","extraction","article","content","html"],
 	"homepage": "https://github.com/wallabag/php-readability",
 	"license": "Apache-2.0",
 	"authors": [
+	{
+		"name": "Dzmitry Vensko",
+		"email": "dima@vensko.net",
+		"homepage": "http://blog.vensko.net",
+		"role": "Developer (HTML5 compatibilty)"
+	},
 	{
 		"name": "Keyvan Minoukadeh",
 		"email": "keyvan@keyvan.net",
@@ -19,7 +25,7 @@
 	}
 	],
     "require": {
-        "php": ">=5.2"   
+        "php": ">=5.6"
     },
 	"autoload": {
 		"psr-0": { "Readability": "" }
